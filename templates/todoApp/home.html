@@ -1,0 +1,35 @@
+{% extends './base.html' %}
+
+{% block content %}
+    <form action="/addTask/" method="post">
+        {% csrf_token %}
+        <div style="text-align:center;">
+            <!-- <label>Task to add</label> -->
+            <input type="text" name="task" style="margin-top:10px;"><br>
+            <input type="submit" value="Add" class="btn btn-success" style="margin-top:10px;">
+        </div>
+    </form>
+
+    <hr/>
+    <table class="table table-bordered table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Task</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for obj in task_obj %}
+                    <tr>
+                        <td>{{obj.id}}</td>
+                        <td>{{obj.task}}</td>
+                        <td>
+                            <a href="/editTask/{{obj.id}}/" class="btn btn-warning">Edit</a>
+                            <a href="/deleteTask/{{obj.id}}/" class="btn btn-danger">Delete</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+{% endblock %}

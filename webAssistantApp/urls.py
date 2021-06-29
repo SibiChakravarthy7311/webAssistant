@@ -20,5 +20,12 @@ from .views import *
 
 urlpatterns = [
     path('', autoTrial, name="home"),
-    path('runTrial/', runTrial)
+    path('runTrial/', runTrial, name="runTrial"),
+    path('speakOut/', speakOut, name="speakOut"),
+    path('mail/', mailView),
+    path('sendEmail/', sendEmail),
+    path('frameSource/', iframe),
+    path('covid/', covidWorldView),
+    path('snake/', snakeBabuView),
+    path('thank/', thankYou)
 ]

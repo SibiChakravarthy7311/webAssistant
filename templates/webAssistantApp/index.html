@@ -1,49 +1,828 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>Web Assistant</title>
+		<title>EIKO</title>
         {% load static %}
-        <link rel="stylesheet" href="{% static 'webAssistantApp/css/style.css' %}">
+<!--        <link rel="stylesheet" href="{% static 'webAssistantApp/css/style.css' %}">-->
+        <link rel="stylesheet" href="{% static 'webAssistantApp/css/style1.css' %}">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/css/all.min.css"/>
 	</head>
 
 	<body>
+
 		<section>
-			<h1>Speech Recognition</h1>
-            <p>Available in Chrome Only</p>
+            <div class="container headcontainer">
+                <img src="{% static 'webAssistantApp/images/logo.png' %}" alt="music-cover" id="logo" />
+			    <h1>EIKO</h1>
+            </div>
+            <p>Your Personal Web Assistant</p>
             <div class="container">
                 <div class="texts">
-
-                    <form action="/runTrial/" id="commandForm" method="post">
+                    <p contenteditable="true" id="passerP"></p>
+                    <p contenteditable="true" id="outputPassP"></p>
+                    <form id="commandForm">
                         {% csrf_token %}
                         <div style="text-align:center;">
-                            <input type="text" id="passer" name="passer" value="Default">
+                            <input type="text" id="passer" style="display:none;" name="passer" value="Default">
+                            <button id="formButton" type="submit" style="display:none;">Submit</button>
                         </div>
                     </form>
 
-                    <p id="output">{{msg}}</p>
-                    <input onload="speakText()" type="text" id="hide" name="hide" value="hide">
+                    <!--<p id="output" value="Output"></p>-->
+                    <form id="outputForm">
+                        {% csrf_token %}
+                        <div style="text-align:center;">
+                            <input id = "outputPass" style="display:none;">
+                            <button id="outFormButton" type="submit" style="display:none">Submit</button>
+                        </div>
+                    </form>
+
+                    <input type="hidden" id="appFlag" value="False">
+
+                    <!--
+                    <input type="hidden" id="elementId" value=3>
+                    <input type="hidden" id="color" value=''>
+                    -->
+
+                    <!--<button id="speak" onClick="speakText()" type="hidden"></button>-->
+                    <!-- <input id = "output">
+                    <input onload="speakText()" type="hidden" id="hide" name="hide" value="hide">-->
 
                 </div>
             </div>
+
+
 		</section>
 
+        <div class="music-body" id="music-body">
+            <div class="music-container" id="music-container">
+                <div class="music-info">
+
+                    <h4 id="title"></h4>
+                    <div class="progress-container" id="progress-container">
+                      <div class="progress" id="progress"></div>
+                    </div>
+                </div>
+
+                <audio src="{% static 'webAssistantApp/music/ImagineDragons-Believer.mp3' %}" id="audio"></audio>
+
+                <div class="img-container">
+                    <img src="{% static 'webAssistantApp/images/ImagineDragons-Believer.mp3.jpeg' %}" alt="music-cover" id="cover" />
+                </div>
+                <div class="navigation">
+                    <button id="prev" class="action-btn">
+                        <i class="fas fa-backward"></i>
+                    </button>
+                    <button id="play" class="action-btn action-btn-big">
+                        <i class="fas fa-play"></i>
+                    </button>
+                    <button id="next" class="action-btn">
+                        <i class="fas fa-forward"></i>
+                    </button>
+                    <button id="close" class="action-btn">
+                        <i class="fas fa-close">X</i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!--
+        <div class="container" id="snakeContainer">
+            <div class="container">
+                <div id="overlay">
+                    Your Final Score: <span id="final_score"></span>
+                    <br>
+                    <a onclick="window.location.reload()" href="#">Click To Play Again</a>
+                </div>
+
+                <canvas id="canvas" width="600" height="405">
+                    <p>Sorry, this browser does not support the canvas element</p>
+                </canvas>
+
+                <div id="stats">
+                    <div id="score">
+                    </div>
+
+                    <div id="high_score">
+                    </div>
+
+                    <button onclick="resetScore()" id="reset_score">Reset Score</button>
+                </div>
+            </div>
+
+
+            <p id="food"></p>
+        </div>
+        -->
+
+        <div class="container" id="frameContainer">
+            <iframe src="frameSource" id="myFrame"></iframe>
+            <br><br>
+            <!--
+            <button onclick="myFunction()" id="frameButton">Try It</button>
+            <button style="display:none;" onclick="centerStyle()" id="centerButton">Center Style</button>
+            <button style="display:none;" onclick="backgroundStyle()" id="backgroundButton">Background Style</button>
+            <button style="display:none;" onclick="colorStyle()" id="colorButton">Color Style</button>
+            -->
+            <button style="display:none;" onclick="refFunction()" id="refButton">Refresh</button>
+            {% load static %}
+            <a style="display:none;" class="downloadButton" id="downloadTemplate" href="{% static 'webAssistantApp/css/template.html' %}" download>
+                <button type="button">Download Template</button>
+            </a>
+            <a style="display:none;" class="downloadButton" id="downloadStyle" href="{% static 'webAssistantApp/css/frameSourceStyle.css' %}" download="style">
+                <button type="button">Download Stylesheet</button>
+            </a>
+        </div>
+
+    <style>
+        #myFrame{
+            height: 800px;
+            width: 90%;
+            border: 3px solid #26861a;
+            border-radius: 7px;
+            margin-bottom: 2vh;
+        }
+
+        #frameContainer{
+            margin-top: 8vh;
+            text-align: center;
+            display: none;
+        }
+
+        a{
+            margin: 10px;
+        }
+
+        .downloadButton button{
+            text-align: center;
+            background-color: green;
+            border-radius: 10%;
+            width: 20%;
+            height: auto;
+            padding: 10px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            color: white;
+        }
+
+        .headcontainer{
+            display: inline-flex;
+            width: 100%;
+            text-align: center;
+        }
+
+        .headcontainer img{
+            height: 50px;
+            width: 50px;
+            text-align: center;
+            margin-right: 1%;
+            margin-top: 1%;
+        }
+
+        section h1{
+            width: 10%;
+            color: rgb(255, 255, 255, 0.722);
+            text-align: center;
+            font-size: 50px;
+            margin-bottom: 10px;
+            margin-right: 5%;
+        }
+
+        /*
+        #frameButton{
+            background-color: green;
+            border-radius: 10%;
+            width: 8%;
+            height: 55px;
+            padding: 10px;
+            margin-top: 40px;
+            color: white;
+        }
+        
+        #refButton{
+            background-color: green;
+            border-radius: 10%;
+            width: 10%;
+            height: 55px;
+            padding: 10px;
+            margin-top: 40px;
+            color: white;
+        }
+        */
+    </style>
+
+    <script>
+        /*
+        function myFunction(){
+            var iframe = document.getElementById("myFrame");
+            var item = iframe.contentWindow.document.getElementsByTagName("h1")[0];
+            var item1 = iframe.contentWindow.document.getElementById(1);
+            var obj = iframe.contentWindow.document.getElementById(2);
+            obj.style.textAlign = "center";
+            //item.style.display = "none";
+            item.style.color = "green";
+            item1.style.color = "white";
+            item1.style.textAlign = "center";
+            item1.style.backgroundColor = "blue";
+            console.log(item1);
+        }
+
+        function centerStyle(){
+            var objId = document.getElementById("elementId").value;
+            var iframe = document.getElementById("myFrame");
+            var obj = iframe.contentWindow.document.getElementById(objId);
+            //window.alert(objId);
+            obj.style.textAlign = "center";
+        }
+
+        function backgroundStyle(){
+            var objId = document.getElementById("elementId").value;
+            var color = document.getElementById("color").value;
+            var iframe = document.getElementById("myFrame");
+            var obj = iframe.contentWindow.document.getElementById(objId);
+            //window.alert(objId);
+            obj.style.backgroundColor = color;
+        }
+
+        function colorStyle(){
+            var objId = document.getElementById("elementId").value;
+            var color = document.getElementById("color").value;
+            var iframe = document.getElementById("myFrame");
+            var obj = iframe.contentWindow.document.getElementById(objId);
+            //window.alert(objId);
+            obj.style.color = color;
+        }
+        */
+        function refFunction(){
+            var iframe = document.getElementById("myFrame");
+            iframe.contentDocument.location.reload(true);
+        }
+    </script>
+
         {% load static %}
-            <script type="text/javascript"  src="{% static 'webAssistantApp/js/main.js' %}"></script>
-            <script type="text/javascript" src="https://code.responsivevoice.org/responsivevoice.js"></script>
+            <!--<script type="text/javascript" src="https://code.responsivevoice.org/responsivevoice.js"></script>-->
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+            <!--<script type="text/javascript"  src="{% static 'webAssistantApp/js/main.js' %}"></script>-->
 
         <script>
             function speakText(){
-                var msg = document.getElementById('output').innerText;
+                var msg = document.getElementById('outputPass').innerText;
                 if(msg != ''){
                     responsiveVoice.speak(msg);
                 }
-                eraseOutput();
+                //eraseOutput();
             }
 
             function eraseOutput(){
                 document.getElementById('output').innerText = '';
             }
         </script>
+
+        <script>
+            const texts = document.querySelector('.texts');
+            const musicBody = document.getElementById('music-body');
+
+            window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+            const recognition = new SpeechRecognition();
+
+            //To wait till we stop talking
+            recognition.interimResults = true;
+
+            //recognition.continuous = true;
+
+            //let p = document.createElement('p');
+
+
+            //speakText();
+
+            recognition.addEventListener('result', (e) => {
+
+                const text = Array.from(e.results).map(result => result[0]).map(result => result.transcript).join('');
+
+                //p.innerText = text;
+                //texts.appendChild(p);
+
+                //document.getElementById("temp").value = text;
+
+                document.getElementById("passer").value = text;
+                document.getElementById("passerP").innerText = text;
+
+                //console.log(text);
+
+                if(e.results[0].isFinal){
+
+                    document.getElementById("formButton").click();
+                }
+
+            })
+
+            $("#commandForm").submit(function(event){
+                event.preventDefault();
+                $.ajax({
+                    url:"{% url 'runTrial' %}",
+                    type:'post',
+                    data:{
+                        Data:$('#passer').val(),
+                        csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
+                    },
+                    success:function(response){
+                        //var iframe = response['iframe']
+                        var mail = response['mail']
+                        var success = response['success']
+                        var speak = response['speak']
+                        var music = response['music']
+                        var music1 = response['music1']
+                        var chrome = response['chrome']
+                        var todo = response['todo']
+                        var snake = response['snake']
+                        var covid = response['covid']
+                        var web = response['web']
+                        var downloadTemplate = response['downloadTemplate']
+                        var iframe = document.getElementById("frameContainer");
+                        if(success){
+                            document.getElementById('outputPass').value = response['msg'];
+                            document.getElementById('outputPassP').innerText = response['msg'];
+                        }
+                        else{
+                            window.alert("request not going successfuly");
+                        }
+                        if(iframe){
+                            document.getElementById("myFrame").contentDocument.location.reload(true);
+                        }
+                        if(mail){
+                            location.href = "/mail";
+                        }
+                        if(todo){
+                            location.href = "/todo";
+                        }
+                        if(snake){
+                            location.href = "/snake";
+                        }
+                        if(covid){
+                            location.href = "/covid";
+                        }
+                        if(music1){
+                            var songIndex = response['songIndex'];
+                            const songs = ['AdithyaVarmaTheme.m4a', 'against-the-current-legends_never_die.mp3', 'AlanWalker-Alone.mp3', 'AlanWalker-Faded.mp3', 'AlanWalker-TheSpectre.mp3', 'BamBhole(kanja).m4a', 'Chill-Bro.mp3', 'Clear_RemixbyShawnWasabi.mp3', 'Dil-Wale-Puchde-Ne-Cha-Oooo.mp3', 'EdSheeran-ShapeOfYou[Official].mp3', 'ImagineDragons-Believer.mp3', 'JuliusDreisigZeusXCrona-Invisible[NCSRelease].mp3', 'K-391AlanWalker-Ignite(feat.JulieBergan_Seungri).mp3', 'LegendsNeverDie[AlanWalkerRemix]-LeagueofLegends.mp3', 'LostSky-Fearlesspt.II(feat.ChrisLinton)[NCSRelease].mp3', 'Mr.Trololooriginalupload.mp3', 'NEFFEX-Cold[CopyrightFree].mp3', 'NEFFEX-FightBack[OfficialVideo].mp3', 'NEFFEX-Grateful.mp3', 'PUBGRingtone.m4a.m4a', 'Queen-Wewillrockyou.mp3', 'SatisfyaMp3SongbyImranKhan-Mp3Song.cc.mp3', 'UnknownBrain-WhyDoI_ (feat.BriTolani)[NCSRelease].mp3', 'UNRAVEL(FULLversion-TokyoGhoulOP).mp3', 'valka-nadagama-song-life-failure-tamil.mp3', 'Vicetone_TonyIgy-Astronomia.mp3', 'WATEVA-BerZerKer[NCSRelease].mp3', 'We-Are-winner-Winner-Chicken-Dinner-Bgm-Ringtone.mp3'];
+                            loadSong(songs[songIndex]);
+                            musicBody.style.display = 'flex';
+                        }
+                        if(speak){
+                            document.getElementById("outFormButton").click();
+                        }
+                        if(downloadTemplate){
+                            document.getElementById("downloadTemplate").click();
+                            document.getElementById("downloadStyle").click();
+                        }
+                        if(web){
+                            iframe.style.display = "block";
+                        }
+                        else{
+                            iframe.style.display = "none";
+                        }
+                        /*
+                        if(centreAction){
+                            document.getElementById("elementId").value = currid;
+                            document.getElementById("styleButton").click();
+                        }
+                        if(backGroundAction){
+                            obj.style.backgroundColor = color;
+                        }
+                        if(colorAction){
+                            obj.style.color = color;
+                        }
+                        */
+                    },
+                    failure:function(error){
+                        alert("error occurred while request");
+                    }
+                });
+
+                //document.getElementById("outFormButton").click();
+            })
+
+            $("#outputForm").submit(function(event){
+                event.preventDefault();
+                $.ajax({
+                    url:"{% url 'speakOut' %}",
+                    type:'post',
+                    data:{
+                        Data:$('#outputPass').val(),
+                        csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
+                    },
+                    success:function(response){
+                        var success = response['success'];
+                        var thank = response['exit'];
+                        if(success){
+                        }else{
+                            window.alert("request not going successfuly");
+                        }
+                        if(thank){
+                            location.href = "/thank";
+                        }
+                    },
+                    failure:function(error){
+                        alert("error occurred while request");
+                    }
+                });
+
+                //document.getElementById("outFormButton").click();
+            })
+
+            recognition.addEventListener('end', ()=>{
+
+                //speakText();
+                recognition.start();
+            })
+
+            recognition.start();
+        </script>
+
+        <script>
+            const musicContainer = document.getElementById('music-container');
+            //const musicBody = document.getElementById('music-body');
+            const playBtn = document.getElementById('play');
+            const prevBtn = document.getElementById('prev');
+            const nextBtn = document.getElementById('next');
+            const closeBtn = document.getElementById('close');
+
+            const audio = document.getElementById('audio');
+            const progress = document.getElementById('progress');
+            const progressContainer = document.getElementById('progress-container');
+            const title = document.getElementById('title');
+            const cover = document.getElementById('cover');
+            const currTime = document.querySelector('#currTime');
+            const durTime = document.querySelector('#durTime');
+
+            const songs = ['AdithyaVarmaTheme.m4a', 'against-the-current-legends_never_die.mp3', 'AlanWalker-Alone.mp3', 'AlanWalker-Faded.mp3', 'AlanWalker-TheSpectre.mp3', 'BamBhole(kanja).m4a', 'Chill-Bro.mp3', 'Clear_RemixbyShawnWasabi.mp3', 'Dil-Wale-Puchde-Ne-Cha-Oooo.mp3', 'EdSheeran-ShapeOfYou[Official].mp3', 'ImagineDragons-Believer.mp3', 'JuliusDreisigZeusXCrona-Invisible[NCSRelease].mp3', 'K-391AlanWalker-Ignite(feat.JulieBergan_Seungri).mp3', 'LegendsNeverDie[AlanWalkerRemix]-LeagueofLegends.mp3', 'LostSky-Fearlesspt.II(feat.ChrisLinton)[NCSRelease].mp3', 'Mr.Trololooriginalupload.mp3', 'NEFFEX-Cold[CopyrightFree].mp3', 'NEFFEX-FightBack[OfficialVideo].mp3', 'NEFFEX-Grateful.mp3', 'PUBGRingtone.m4a.m4a', 'Queen-Wewillrockyou.mp3', 'SatisfyaMp3SongbyImranKhan-Mp3Song.cc.mp3', 'UnknownBrain-WhyDoI_ (feat.BriTolani)[NCSRelease].mp3', 'UNRAVEL(FULLversion-TokyoGhoulOP).mp3', 'valka-nadagama-song-life-failure-tamil.mp3', 'Vicetone_TonyIgy-Astronomia.mp3', 'WATEVA-BerZerKer[NCSRelease].mp3', 'We-Are-winner-Winner-Chicken-Dinner-Bgm-Ringtone.mp3'];
+
+            var songIndex = 9;
+
+            //loadSong(songs[songIndex]);
+
+            function loadSong(song) {
+              title.innerText = song;
+              //audio.src = '/static/webAssistantApp/music/${song}';
+              //cover.src = '/static/webAssistantApp/images/${song}.jpeg';
+              //audio.attr("src", "{% static 'webAssistantApp/music/${song}' %}");
+              //cover.attr("src", "{% static 'webAssistantApp/images/${song}.jpeg' %}");
+              audio.src = '/static/webAssistantApp/music/'+song;
+              cover.src = '/static/webAssistantApp/images/'+song+'.jpeg';
+            }
+
+            function playSong() {
+              musicContainer.classList.add('play');
+              playBtn.querySelector('i.fas').classList.remove('fa-play');
+              playBtn.querySelector('i.fas').classList.add('fa-pause');
+
+              audio.play();
+            }
+
+            function pauseSong() {
+              musicContainer.classList.remove('play');
+              playBtn.querySelector('i.fas').classList.add('fa-play');
+              playBtn.querySelector('i.fas').classList.remove('fa-pause');
+
+              audio.pause();
+            }
+
+            function prevSong() {
+              songIndex--;
+
+              if (songIndex < 0) {
+                songIndex = songs.length - 1;
+              }
+
+              loadSong(songs[songIndex]);
+
+              playSong();
+            }
+
+            function nextSong() {
+              songIndex++;
+
+              if (songIndex > songs.length - 1) {
+                songIndex = 0;
+              }
+
+              loadSong(songs[songIndex]);
+
+              playSong();
+            }
+
+            function closePlayer() {
+                pauseSong();
+                audio.currentTime = 0;
+                musicBody.style.display = 'none';
+            }
+
+            function updateProgress(e) {
+              const { duration, currentTime } = e.srcElement;
+              const progressPercent = (currentTime / duration) * 100;
+
+              progress.style.width = progressPercent+'%';
+            }
+
+            function setProgress(e) {
+              const width = this.clientWidth;
+              const clickX = e.offsetX;
+              const duration = audio.duration;
+
+              audio.currentTime = (clickX / width) * duration;
+            }
+
+            function DurTime (e) {
+                const {duration,currentTime} = e.srcElement;
+                var sec;
+                var sec_d;
+
+                let min = (currentTime==null)? 0:
+                 Math.floor(currentTime/60);
+                 min = min <10 ? '0'+min:min;
+
+                function get_sec (x) {
+                    if(Math.floor(x) >= 60){
+
+                        for (var i = 1; i<=60; i++){
+                            if(Math.floor(x)>=(60*i) && Math.floor(x)<(60*(i+1))) {
+                                sec = Math.floor(x) - (60*i);
+                                sec = sec <10 ? '0'+sec:sec;
+                            }
+                        }
+                    }else{
+                        sec = Math.floor(x);
+                        sec = sec <10 ? '0'+sec:sec;
+                     }
+                }
+
+                get_sec (currentTime,sec);
+
+                let min_d = (isNaN(duration) === true)? '0':
+                    Math.floor(duration/60);
+                 min_d = min_d <10 ? '0'+min_d:min_d;
+
+
+                 function get_sec_d (x) {
+                    if(Math.floor(x) >= 60){
+
+                        for (var i = 1; i<=60; i++){
+                            if(Math.floor(x)>=(60*i) && Math.floor(x)<(60*(i+1))) {
+                                sec_d = Math.floor(x) - (60*i);
+                                sec_d = sec_d <10 ? '0'+sec_d:sec_d;
+                            }
+                        }
+                    }else{
+                        sec_d = (isNaN(duration) === true)? '0':
+                        Math.floor(x);
+                        sec_d = sec_d <10 ? '0'+sec_d:sec_d;
+                     }
+                }
+
+                get_sec_d (duration);
+
+            };
+
+            playBtn.addEventListener('click', () => {
+              const isPlaying = musicContainer.classList.contains('play');
+
+              if (isPlaying) {
+                pauseSong();
+              } else {
+                playSong();
+              }
+            });
+
+            prevBtn.addEventListener('click', prevSong);
+            nextBtn.addEventListener('click', nextSong);
+
+            closeBtn.addEventListener('click', closePlayer);
+
+            audio.addEventListener('timeupdate', updateProgress);
+
+            progressContainer.addEventListener('click', setProgress);
+
+            audio.addEventListener('ended', nextSong);
+
+            audio.addEventListener('timeupdate',DurTime);
+        </script>
+
+        <style>
+            @import url('https://fonts.googleapis.com/css?family=Lato&display=swap');
+
+            *{
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            html{
+                font-family: 'Montserrat';
+                font-size: 20px;
+            }
+            /*
+            section{
+                width: 100%;
+                display: flex;
+                align-items: center;
+                background-color: #3028f0;
+                flex-direction: column;
+                padding: 50px 0;
+                height: 40vh;
+            }
+
+            section h1{
+                color: rgb(255, 255, 255, 0.322);
+                text-align: center;
+                width: 100%;
+                font-size: 50px;
+                margin-bottom: 10px;
+            }
+
+            section p{
+                color: rgb(255, 255, 255, 0.322);
+                width: 100%;
+                margin-bottom: 40px;
+                text-align: center;
+            }
+
+            .container{
+                width: 100%;
+                max-width: 500px;
+                margin: 0 auto;
+                justify-content: center;
+            }
+
+            .texts p, input, textarea{
+                color: black;
+                background-color: white;
+                width: 100%;
+                padding: 10px;
+                border-radius: 8px;
+                margin-bottom: 10px;
+            }
+            */
+            #passer, #passerP{
+                /*color: rgb(255, 255, 255, 0.682);*/
+                color: 000000;
+                text-align: left;
+            }
+
+            #outputPass, #outputPassP{
+                color: #000000;
+                text-align: right;
+                background-color: #efefef;
+            }
+
+            .texts p.reply{
+                text-align: right;
+            }
+
+            .music-body{
+              background-image: linear-gradient(
+                0deg,
+                #1bb3eb 23.8%,
+                rgb(150, 150, 150) 92%
+              );
+              height: 35vh;
+              display: none;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              font-family: 'Lato', sans-serif;
+              margin: 0;
+            }
+
+            .music-container {
+              background-color: #fff;
+              border-radius: 15px;
+              box-shadow: 0 20px 20px 0 rgba(83, 75, 75, 0.6);
+              display: flex;
+              padding: 20px 30px;
+              position: relative;
+              margin: 100px 0;
+              z-index: 10;
+            }
+
+            .img-container {
+              position: relative;
+              width: 100px;
+            }
+
+            .img-container::after {
+              content: '';
+              background-color: #fff;
+              border-radius: 50%;
+              position: absolute;
+              bottom: 100%;
+              left: 50%;
+              width: 15px;
+              height: 15px;
+              transform: translate(-50%, 130%);
+            }
+
+            .img-container img {
+              border-radius: 50%;
+              object-fit: cover;
+              height: 100px;
+              width: inherit;
+              position: absolute;
+              bottom: 0;
+              left: 0;
+              animation: rotate 3s linear infinite;
+
+              animation-play-state: paused;
+            }
+
+            .music-container.play .img-container img {
+              animation-play-state: running;
+            }
+
+            @keyframes rotate {
+              from {
+                transform: rotate(0deg);
+              }
+
+              to {
+                transform: rotate(360deg);
+              }
+            }
+
+            .navigation {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              z-index: 1;
+            }
+
+            .action-btn{
+                background-color: #fff;
+                border: 0;
+                color: #bcbcbc;
+                font-size: 20px;
+                cursor: pointer;
+                padding: 10px;
+                margin: 0 20px;
+            }
+
+            #close i{
+                font-size: 23px;
+                color: #bcbcbc;
+                font-style: bold;
+            }
+
+            .action-btn.action-btn-big {
+              color: #a8a8a8;
+              font-size: 30px;
+            }
+
+            .action-btn:focus {
+              outline: 0;
+            }
+
+            .music-info {
+              background-color: rgba(255, 255, 255, 0.25);
+              border-radius: 15px 15px 0 0;
+              position: absolute;
+              top: 0;
+              left: 20px;
+              width: calc(100% - 40px);
+              padding: 10px 10px 10px 150px;
+              opacity: 0;
+              transform: translateY(0%);
+              transition: transform 0.3s ease-in, opacity 0.3s ease-in;
+              z-index: 0;
+            }
+
+            .music-container.play .music-info {
+              opacity: 1;
+              transform: translateY(-100%);
+            }
+
+            .music-info h4 {
+              margin: 0;
+              font-size: 15px;
+              color: white;
+            }
+
+            .progress-container {
+              background: #fff;
+              border-radius: 5px;
+              cursor: pointer;
+              margin: 10px 0;
+              height: 4px;
+              width: 100%;
+            }
+
+            .progress {
+              background-color: #fe8daa;
+              border-radius: 5px;
+              height: 100%;
+              width: 0%;
+              transition: width 0.1s linear;
+            }
+        </style>
+
 	</body>
 </html>

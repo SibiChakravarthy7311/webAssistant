@@ -1,3 +1,4 @@
+/*
 const texts = document.querySelector('.texts');
 
 window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -28,7 +29,7 @@ function speakText(){
         document.getElementById('output').innerText = '';
     }
 }
-*/
+*'/
 
 //speakText();
 
@@ -40,7 +41,7 @@ recognition.addEventListener('result', (e) => {
         speakText(msg);
         document.getElementById('output').innerText = '';
     }
-    */
+    *'/
 
     const text = Array.from(e.results).map(result => result[0]).map(result => result.transcript).join('');
 
@@ -61,7 +62,7 @@ recognition.addEventListener('result', (e) => {
 
         p = document.createElement('p');
     }
-    */
+    *'/
 
     document.getElementById("passer").value = text;
     /*
@@ -69,19 +70,63 @@ recognition.addEventListener('result', (e) => {
     if(msg != ''){
         speakText(msg);
     }
-    */
+    *'/
 
     //console.log(text);
+
+
+    if(e.results[0].isFinal){
+
+        document.getElementById("formButton").click();
+        window.alert("Form submitted");
+    }
+
+
+
 })
 
+$("form").submit(function(event){
+                event.preventDefault();
+                $.ajax({
+                        url:"{% url 'runTrial' %}",
+                        type:'post',
+                        data:{
+                            Data:$('#passer').val(),
+                            csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
+                        },
+                        success:function(response){
+                            var success = response['success']
+                            if(success){
+                                document.getElementById('output').innerText = response['msg'];
+                            }else{
+                                window.alert("request not going successfuly");
+                            }
+                        },
+                        failure:function(error){
+                            alert("error occurred while request");
+                        }
+                });
+            })
+
 recognition.addEventListener('end', ()=>{
+
+    /*
     if(document.getElementById("passer").value != "Default"){
         document.getElementById("commandForm").submit();
     }
+    */
+
+    /*
+    if(document.getElementById("passer").value != "Default"){
+        window.alert("Submitted");
+        document.getElementById("formButton").click();
+    }
+    *'/
+
     //speakText();
     recognition.start();
 })
 
 recognition.start();
-
+*/
 //document.getElementById("passer").value = text;
